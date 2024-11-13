@@ -1,10 +1,10 @@
-name: Tests
+name: CI Pipeline
 
 on: [push]
 
 jobs:
-  run-tests:
-    name: Run Tests
+  install-deps-run-tests:
+    name: Install Dependencies and Run Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,11 +15,18 @@ jobs:
 
       # Establishes Python, with version(s) enumerated
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
 
       # Install Workflow dependencies from Pipfile
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
+
+      # Run tests
+      - name: Run Tests
+        run: poetry run pytest -v
+        
