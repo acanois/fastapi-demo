@@ -1,0 +1,25 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      # Checkout the local repo, using the commit that triggered this workflow
+      - uses: actions/checkout@v3
+
+      # Establishes Python, with version(s) enumerated
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Workflow dependencies from Pipfile
+      - name: Install dependencies
+        run: |
+          poetry install
