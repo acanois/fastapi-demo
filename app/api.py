@@ -6,6 +6,9 @@ from fastapi import FastAPI, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 
+from jwt.exceptions import InvalidTokenError
+from passlib.context import CryptContext
+
 from .models.user import User, UserInDB
 
 app = FastAPI()
