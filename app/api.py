@@ -13,8 +13,9 @@ from passlib.context import CryptContext
 
 # When running with the fastapi command, it expects relative imports
 from .credentials import SECRET_KEY, ALGORITHM, EXPIRE_TIME_MINUTES
-from .models.user import User, UserInDB, users_table
+from .models.user import User, users_table
 from .models.auth import Token, TokenData
+from .auth import get_user, authenticate_user
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -22,25 +23,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
-
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
