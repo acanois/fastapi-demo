@@ -12,11 +12,12 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 
 # When running with the fastapi command, it expects relative imports
-from .credentials import FAKE_SECRET_KEY, ALGORITHM, EXPIRE_TIME_MINUTES
+from .credentials import FAKE_SECRET_KEY, EXPIRE_TIME_MINUTES
 from .models.user import User, users_table
 from .models.auth import Token, TokenData
 from .auth import get_user, authenticate_user
 
+ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
