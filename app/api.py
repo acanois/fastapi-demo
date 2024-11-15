@@ -11,9 +11,9 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 
-from credentials import SECRET_KEY, ALGORITHM, EXPIRE_TIME_MINUTES
-
-from .models.user import User, UserInDB
+# When running with the fastapi command, it expects relative imports
+from .credentials import SECRET_KEY, ALGORITHM, EXPIRE_TIME_MINUTES
+from .models.user import User, UserInDB, users_table
 from .models.auth import Token, TokenData
 
 
@@ -22,23 +22,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
-
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
 
 
 def verify_password(plain_password, hashed_password):
@@ -89,7 +72,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(users_table, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -131,14 +114,14 @@ async def read_own_items(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    user = authenticate_user(users_table, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=EXPIRE_TIME_MINUTES)
+    access_token_expires = timedelta(minutes=int(EXPIRE_TIME_MINUTES))
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
