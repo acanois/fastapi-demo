@@ -2,6 +2,10 @@ name: CI Pipeline
 
 on: [push]
 
+env:
+  FAKE_SECRET_KEY: ${{ secrets.FAKE_SECRET_KEY }}
+  EXPIRE_TIME_MINUTES: ${{ secrets.EXPIRE_TIME_MINUTES }}
+
 jobs:
   install-deps-run-tests:
     name: Install Dependencies and Run Tests
