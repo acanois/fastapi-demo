@@ -1,5 +1,6 @@
 """API"""
 
+from contextlib import asynccontextmanager
 from datetime import timedelta
 from typing import Annotated
 
@@ -8,11 +9,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 
 from passlib.context import CryptContext
+from sqlmodel import SQLModel, Session, create_engine
 
 # When running with the fastapi command, it expects relative imports
 from .credentials import EXPIRE_TIME_MINUTES
-from .models.user import User, users_table
-from .models.auth import Token
+from .models.auth.user import User, users_table
+from .models.auth.auth import Token
 from .auth import (
     authenticate_user,
     get_current_active_user,
@@ -25,7 +27,30 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app = FastAPI()
+from database import CONNECTION_STRING
+
+engine = create_engine(CONNECTION_STRING)
+
+
+def bootstrap_db():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    bootstrap_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")

@@ -9,9 +9,9 @@ from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordBearer
 
-from app.models.auth import TokenData
+from app.models.auth.auth import TokenData
 
-from .models.user import User, UserInDB, users_table
+from .models.auth.user import User, UserInDB, users_table
 
 from .credentials import FAKE_SECRET_KEY
 
