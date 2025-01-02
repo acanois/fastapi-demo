@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordBearer
 
-from app.models.auth.auth import TokenData
+from .models.auth.auth import TokenData
 
 from .models.auth.user import User, UserInDB, users_table
 
