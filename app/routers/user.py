@@ -30,6 +30,7 @@ def create_user(user: User, session: session):
 
     return user
 
+
 @router.get("/{user_id}", response_model=User)
 def get_user_by_id(user_id: int, session: session):
     """Get a single user by id
@@ -47,5 +48,5 @@ def get_user_by_id(user_id: int, session: session):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     return user

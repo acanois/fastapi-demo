@@ -6,10 +6,9 @@ from typing import Annotated
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 
-
 from sqlmodel import Session
 
-from .routers import auth, user
+from .routers import user
 
 from .database import get_session, bootstrap_db
 
@@ -25,7 +24,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(auth.router)
 app.include_router(user.router)
 
 
