@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import FastAPI, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from sqlmodel import Session
 
@@ -29,6 +29,4 @@ app.include_router(user.router)
 
 @app.get("/")
 async def home():
-    message = {"message": "home"}
-
-    return JSONResponse(message)
+    return RedirectResponse("/docs")
