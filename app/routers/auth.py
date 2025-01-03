@@ -1,8 +1,9 @@
+"""AUTH Router"""
+
 from datetime import timedelta
 from typing import Annotated
 from passlib.context import CryptContext
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 # When running with the fastapi command, it expects relative imports
