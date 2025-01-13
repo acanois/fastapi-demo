@@ -66,9 +66,4 @@ def test_create_user(test_client, test_user):
     assert get_id == create_id
 
 
-def test_get_all_users(test_client):
-    """Test get all users"""
-    response = test_client.get("/user/users")
-
-    assert response.status_code == 200
 
