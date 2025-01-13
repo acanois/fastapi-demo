@@ -24,6 +24,7 @@ def db_session():
 def test_client():
     return TestClient(app)
 
+
 @pytest.fixture
 def user_id():
     return uuid4()
@@ -63,3 +64,11 @@ def test_create_user(test_client, test_user):
     get_json = get_res.json()
     get_id = get_json["id"]
     assert get_id == create_id
+
+
+def test_get_all_users(test_client):
+    """Test get all users"""
+    response = test_client.get("/user/users")
+
+    assert response.status_code == 200
+

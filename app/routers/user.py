@@ -1,11 +1,11 @@
 """USER Router"""
 
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, select
 
 from ..database import get_session
-from ..models.user import User
+from ..models.user import User, AllUsers
 
 session = Annotated[Session, Depends(get_session)]
 
@@ -31,6 +31,18 @@ def get_user_by_id(user_id: int, session: session):
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+
+@router.get("/users", response_model=AllUsers)
+def get_all_users(
+    session: session,
+    # offset: int = 0,
+    # limit: Annotated[int, Query(le=100)] = 100,
+):
+    query = """SELECT * FROM user;"""
+    users = session.exec(query)
+
+    return users
 
 
 @router.post("/create", response_model=User)
