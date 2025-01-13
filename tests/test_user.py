@@ -14,43 +14,52 @@ from ..app.api import app
 from ..app.database import Session, get_session
 from ..app.models.user import User
 
-client = TestClient(app)
-
 
 @pytest.fixture
 def db_session():
     return Annotated[Session, Depends(get_session)]
 
+
 @pytest.fixture
-def test_user():
-    user_id = uuid4()
+def test_client():
+    return TestClient(app)
+
+@pytest.fixture
+def user_id():
+    return uuid4()
+
+
+@pytest.fixture
+def test_user(user_id):
     new_user = {
         "user_id": str(user_id),
         "username": "test_user",
         "email": "string",
         "first_name": "test",
         "last_name": "user",
-        "active": True
+        "active": True,
     }
 
     return new_user
 
 
-def test_home():
+def test_home(test_client):
     """Test the home page"""
-    response = client.get("/")
+    response = test_client.get("/")
     assert response.status_code == 200
 
 
-def test_create_user(db_session, test_user):
-    """Test user creation"""
-    new_user = User.model_validate(user_model)
+def test_create_user(test_client, test_user):
+    """Test create user"""
+    create_res = test_client.post("/user/create", json=test_user)
+    assert create_res.status_code == 200
 
-    db_session.add(new_user)
-    db_session.commit()
-    db_session.refresh(new_user)
+    create_json = create_res.json()
+    create_id = create_json["id"]
 
-    user_from_db = db_session.get(User, user_id=test_user["user_id"])
+    get_res = test_client.get(f"/user/{create_id}")
+    assert get_res.status_code == 200
 
-    assert user_from_db is not None
-    assert user_from_db["user_id"] == new_user["user_id"]
+    get_json = get_res.json()
+    get_id = get_json["id"]
+    assert get_id == create_id
