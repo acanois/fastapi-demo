@@ -3,7 +3,7 @@
 from uuid import uuid4
 
 import pytest
-from sqlmodel import SQLModel
+from sqlmodel import Session
 
 from typing import Annotated
 
@@ -11,13 +11,15 @@ from fastapi import Depends
 from fastapi.testclient import TestClient
 
 from ..app.api import app
-from ..app.database import Session, get_session
+from ..app.database import engine
 from ..app.models.user import User
 
 
 @pytest.fixture
 def db_session():
-    return Annotated[Session, Depends(get_session)]
+    with Session(engine) as session:
+        yield session
+        session.rollback()
 
 
 @pytest.fixture
@@ -35,7 +37,7 @@ def test_user(user_id):
     new_user = {
         "user_id": str(user_id),
         "username": "test_user",
-        "email": "string",
+        "email": "test_user@test_user.gov",
         "first_name": "test",
         "last_name": "user",
         "active": True,
@@ -44,26 +46,33 @@ def test_user(user_id):
     return new_user
 
 
-def test_home(test_client):
-    """Test the home page"""
-    response = test_client.get("/")
+def test_create_user(test_client, test_user):
+    """Test create user"""
+    response = test_client.post("/user/create", json=test_user)
+    assert response.status_code == 200
+
+    new_user = response.json()
+
+    print(new_user)
+
+    for k in test_user.keys():
+        assert test_user[k] == new_user[k]
+
+
+def test_get_user(test_client):
+    """Test get user"""
+    test_id = 1
+
+    response = test_client.get(f"/user/{test_id}")
     assert response.status_code == 200
 
 
-def test_create_user(test_client, test_user):
-    """Test create user"""
-    create_res = test_client.post("/user/create", json=test_user)
-    assert create_res.status_code == 200
+def test_delete_user(test_client):
+    """Test delete user"""
+    test_id = 1
 
-    create_json = create_res.json()
-    create_id = create_json["id"]
+    response = test_client.delete(f"/user/{test_id}")
 
-    get_res = test_client.get(f"/user/{create_id}")
-    assert get_res.status_code == 200
+    print(response.json())
 
-    get_json = get_res.json()
-    get_id = get_json["id"]
-    assert get_id == create_id
-
-
-
+    assert response.status_code == 200

@@ -1,11 +1,11 @@
 """USER Router"""
 
-from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session
 
 from ..database import get_session
-from ..models.user import User, AllUsers
+from ..models.user import User
 
 session = Annotated[Session, Depends(get_session)]
 
@@ -33,7 +33,6 @@ def get_user_by_id(user_id: int, session: session):
     return user
 
 
-
 @router.post("/create", response_model=User)
 def create_user(user: User, session: session):
     """Create a new user
@@ -53,8 +52,8 @@ def create_user(user: User, session: session):
     return user
 
 
-@router.get("/delete/{user_id}")
-def delete_user(user_id: str | int, session: session):
+@router.delete("/{user_id}", response_model=User)
+def delete_user(user_id: int, session: session):
     """Get a single user by id
 
     Args:
@@ -67,8 +66,11 @@ def delete_user(user_id: str | int, session: session):
     Returns:
         user: User found by id
     """
-    user = session.delete(user_id=user_id)
+
+    user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    session.delete(user)
 
     return user
