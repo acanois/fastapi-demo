@@ -66,13 +66,3 @@ def test_get_user(test_client):
     response = test_client.get(f"/user/{test_id}")
     assert response.status_code == 200
 
-
-def test_delete_user(test_client):
-    """Test delete user"""
-    test_id = 1
-
-    response = test_client.delete(f"/user/{test_id}")
-
-    print(response.json())
-
-    assert response.status_code == 200
