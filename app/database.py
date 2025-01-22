@@ -14,10 +14,7 @@ CONNECTION_STRING = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{
 
 engine = create_engine(CONNECTION_STRING)
 
-
-def bootstrap_db():
-    """Creates all tables in the database"""
-    SQLModel.metadata.create_all(engine)
+SQLModel.metadata.create_all(engine)
 
 
 def get_session():

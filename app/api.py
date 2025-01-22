@@ -10,7 +10,7 @@ from sqlmodel import Session
 
 from .routers import user
 
-from .database import get_session, bootstrap_db
+from .database import get_session
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -18,7 +18,6 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    bootstrap_db()
     yield
 
 
