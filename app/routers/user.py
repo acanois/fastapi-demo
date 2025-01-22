@@ -50,27 +50,3 @@ def create_user(user: User, session: session):
     session.refresh(user)
 
     return user
-
-
-@router.delete("/{user_id}", response_model=User)
-def delete_user(user_id: int, session: session):
-    """Get a single user by id
-
-    Args:
-        user_id (int): The user id to query
-        session (Annotated[Session, Depends): Session object for the transaction
-
-    Raises:
-        HTTPException: 404 if user not found
-
-    Returns:
-        user: User found by id
-    """
-
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    session.delete(user)
-
-    return user
